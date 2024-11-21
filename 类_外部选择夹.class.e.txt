@@ -1,0 +1,371 @@
+﻿.版本 2
+
+.程序集 类_外部选择夹, , 公开
+.程序集变量 hTabCtrl, 整数型
+.程序集变量 dwProcessId, 整数型
+.程序集变量 isRemote, 逻辑型
+.程序集变量 hProcess, 整数型
+.程序集变量 isWow64, 逻辑型
+
+.子程序 _初始化
+    
+
+.子程序 _销毁
+    .如果真 (hProcess ≠ #NULL)
+        CloseHandle (hProcess)
+        hProcess ＝ #NULL
+    .如果真结束
+    
+
+.子程序 初始化选择夹, 逻辑型, 公开
+    .参数 窗口句柄, 整数型
+    .局部变量 变量_FD090325, 整数型
+
+    变量_FD090325 ＝ GetCurrentProcessId ()
+    GetWindowThreadProcessId (窗口句柄, dwProcessId)
+    isRemote ＝ 变量_FD090325 ≠ dwProcessId
+    hProcess ＝ OpenProcess (#PROCESS_ALL_ACCESS, 0, dwProcessId)
+    .如果真 (hProcess ≠ #NULL)
+        .如果真 (IsWow64Process (hProcess, isWow64) 且 isWow64 ＝ 假)
+            CloseHandle (hProcess)
+            hProcess ＝ #NULL
+            返回 (假)
+        .如果真结束
+        hTabCtrl ＝ 窗口句柄
+    .如果真结束
+    返回 (hProcess ≠ #NULL)
+
+.子程序 销毁, , 公开
+    .如果真 (hProcess ≠ #NULL)
+        CloseHandle (hProcess)
+        hProcess ＝ #NULL
+    .如果真结束
+    
+
+.子程序 删除子夹, 逻辑型, 公开, 成功返回真
+    .参数 欲删除的子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .局部变量 变量_140A0325, 整数型
+    .局部变量 变量_00B10225, 整数型
+
+    .如果真 (欲删除的子夹索引 ＜ 0)
+        变量_140A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_140A0325 ＝ 0)
+            返回 (假)
+        .如果真结束
+        欲删除的子夹索引 ＝ 变量_140A0325 － 1
+    .如果真结束
+    变量_00B10225 ＝ SendMessageA (hTabCtrl, #TCM_DELETEITEM, 欲删除的子夹索引, 0)
+    返回 (变量_00B10225 ≠ 0)
+
+.子程序 插入子夹, 整数型, 公开, 成功返回位置索引，失败返回-1
+    .参数 插入位置, 整数型, 可空, 默认为-1，加到子夹末尾。0 代表子夹一，1 代表子夹二，如此类推(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .参数 子夹标题, 文本型
+    .参数 子夹项目数值, 整数型, 可空, 默认为0
+    .参数 图片索引, 整数型, 可空, 默认为-1(无图片)
+    .局部变量 变量_07B10225, 整数型
+    .局部变量 变量_060B0325, 整数型
+    .局部变量 变量_070B0325, 整数型
+    .局部变量 变量_0F0B0325, 整数型
+
+    .如果真 (是否为空 (图片索引) 或 取图片组句柄 () ＝ 0)
+        图片索引 ＝ -1
+    .如果真结束
+    变量_07B10225 ＝ 取子夹数目 ()
+    .如果真 (是否为空 (插入位置) 或 插入位置 ＞ 变量_07B10225 － 1 或 插入位置 ＝ -1)
+        插入位置 ＝ 变量_07B10225
+    .如果真结束
+    变量_060B0325 ＝ 28
+    .如果 (isRemote)
+        .如果真 (hProcess ≠ #NULL)
+            变量_070B0325 ＝ VirtualAllocEx (hProcess, #NULL, 变量_060B0325 ＋ #MAX_PATH, 位或 (#<?未知本地类型?>, #MEM_COMMIT), #PAGE_READWRITE)
+            .如果真 (变量_070B0325 ≠ #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_070B0325, 位或 (#TCIF_TEXT, #TCIF_IMAGE, #TCIF_PARAM), 4, #NULL)
+                WriteProcessMemory_文本型 (hProcess, 变量_070B0325 ＋ 变量_060B0325, 子夹标题 ＋ 字符 (#NULL), 取文本长度 (子夹标题), #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_070B0325 ＋ 12, 变量_070B0325 ＋ 变量_060B0325, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_070B0325 ＋ 16, 取文本长度 (子夹标题), 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_070B0325 ＋ 20, 图片索引, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_070B0325 ＋ 24, 子夹项目数值, 4, #NULL)
+                变量_0F0B0325 ＝ SendMessageA (hTabCtrl, #TCM_INSERTITEMA, 插入位置, 变量_070B0325)
+                VirtualFreeEx (hProcess, 变量_070B0325, 0, #MEM_RELEASE)
+            .如果真结束
+            
+        .如果真结束
+        
+    .否则
+        变量_070B0325 ＝ HeapAlloc (GetProcessHeap (), #HEAP_ZERO_MEMORY, 变量_060B0325)
+        .如果真 (变量_070B0325 ≠ #NULL)
+            __set (变量_070B0325, 0, 位或 (#TCIF_TEXT, #TCIF_IMAGE, #TCIF_PARAM))
+            __set (变量_070B0325, 12, 取指针文本_ (子夹标题))
+            __set (变量_070B0325, 16, 取文本长度 (子夹标题))
+            __set (变量_070B0325, 20, 图片索引)
+            __set (变量_070B0325, 24, 子夹项目数值)
+            变量_0F0B0325 ＝ SendMessageA (hTabCtrl, #TCM_INSERTITEMA, 插入位置, 变量_070B0325)
+            DLL_HeapFree (GetProcessHeap (), 0, 变量_070B0325)
+        .如果真结束
+        
+    .如果结束
+    .如果真 (变量_07B10225 ＝ 0)
+        UpdateWindow (GetParent (hTabCtrl))
+    .如果真结束
+    返回 (变量_0F0B0325)
+
+.子程序 取子夹数目, 整数型, 公开
+    返回 (SendMessageA (hTabCtrl, #TCM_GETITEMCOUNT, 0, 0))
+
+.子程序 取子夹标题, 文本型, 公开
+    .参数 子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .局部变量 变量_250A0325, 整数型
+    .局部变量 变量_600A0325, 整数型
+    .局部变量 变量_290A0325, 整数型
+    .局部变量 变量_0AB10225, 整数型
+    .局部变量 变量_2E0A0325, 文本型
+
+    .如果真 (子夹索引 ＜ 0)
+        变量_250A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_250A0325 ＝ 0)
+            返回 (变量_2E0A0325)
+        .如果真结束
+        子夹索引 ＝ 变量_250A0325 － 1
+    .如果真结束
+    变量_600A0325 ＝ 28
+    .如果 (isRemote)
+        .如果真 (hProcess ≠ #NULL)
+            变量_290A0325 ＝ VirtualAllocEx (hProcess, #NULL, 变量_600A0325 ＋ #MAX_PATH, 位或 (#<?未知本地类型?>, #MEM_COMMIT), #PAGE_READWRITE)
+            .如果真 (变量_290A0325 ≠ #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_290A0325, #TCIF_TEXT, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_290A0325 ＋ 12, 变量_290A0325 ＋ 变量_600A0325, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_290A0325 ＋ 16, #MAX_PATH, 4, #NULL)
+                变量_0AB10225 ＝ SendMessageA (hTabCtrl, #TCM_GETITEMA, 子夹索引, 变量_290A0325)
+                .如果真 (变量_0AB10225 ≠ 0)
+                    变量_2E0A0325 ＝ 取空白文本 (#MAX_PATH)
+                    DLL_ReadProcessMemory5 (hProcess, 变量_290A0325 ＋ 变量_600A0325, 变量_2E0A0325, #MAX_PATH, #NULL)
+                .如果真结束
+                VirtualFreeEx (hProcess, 变量_290A0325, 0, #MEM_RELEASE)
+            .如果真结束
+            
+        .如果真结束
+        
+    .否则
+        变量_290A0325 ＝ HeapAlloc (GetProcessHeap (), #HEAP_ZERO_MEMORY, 变量_600A0325)
+        .如果真 (变量_290A0325 ≠ #NULL)
+            __set (变量_290A0325, 0, #TCIF_TEXT)
+            变量_2E0A0325 ＝ 取空白文本 (#MAX_PATH)
+            __set (变量_290A0325, 12, 取指针文本_ (变量_2E0A0325))
+            __set (变量_290A0325, 16, #MAX_PATH)
+            变量_0AB10225 ＝ SendMessageA (hTabCtrl, #TCM_GETITEMA, 子夹索引, 变量_290A0325)
+            DLL_HeapFree (GetProcessHeap (), 0, 变量_290A0325)
+        .如果真结束
+        
+    .如果结束
+    返回 (变量_2E0A0325)
+
+.子程序 取子夹数值, 整数型, 公开
+    .参数 子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .局部变量 变量_3C0A0325, 整数型
+    .局部变量 变量_640A0325, 整数型
+    .局部变量 变量_690A0325, 整数型
+    .局部变量 变量_6B0A0325, 整数型
+    .局部变量 变量_6C0A0325, 整数型
+
+    .如果真 (子夹索引 ＜ 0)
+        变量_3C0A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_3C0A0325 ＝ 0)
+            返回 (0)
+        .如果真结束
+        子夹索引 ＝ 变量_3C0A0325 － 1
+    .如果真结束
+    变量_640A0325 ＝ 28
+    .如果 (isRemote)
+        .如果真 (hProcess ≠ #NULL)
+            变量_690A0325 ＝ VirtualAllocEx (hProcess, #NULL, 变量_640A0325, 位或 (#<?未知本地类型?>, #MEM_COMMIT), #PAGE_READWRITE)
+            .如果真 (变量_690A0325 ≠ #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_690A0325, #TCIF_PARAM, 4, #NULL)
+                变量_6C0A0325 ＝ SendMessageA (hTabCtrl, #TCM_GETITEMA, 子夹索引, 变量_690A0325)
+                .如果真 (变量_6C0A0325 ≠ 0)
+                    ReadProcessMemory_整数型1 (hProcess, 变量_690A0325 ＋ 24, 取指针整数_ (变量_6B0A0325), 4, #NULL)
+                .如果真结束
+                VirtualFreeEx (hProcess, 变量_690A0325, 0, #MEM_RELEASE)
+            .如果真结束
+            
+        .如果真结束
+        
+    .否则
+        变量_690A0325 ＝ HeapAlloc (GetProcessHeap (), #HEAP_ZERO_MEMORY, 变量_640A0325)
+        .如果真 (变量_690A0325 ≠ #NULL)
+            __set (变量_690A0325, 0, #TCIF_PARAM)
+            变量_6C0A0325 ＝ SendMessageA (hTabCtrl, #TCM_GETITEMA, 子夹索引, 变量_690A0325)
+            .如果真 (变量_6C0A0325 ≠ 0)
+                变量_6B0A0325 ＝ __get (变量_690A0325, 24)
+            .如果真结束
+            DLL_HeapFree (GetProcessHeap (), 0, 变量_690A0325)
+        .如果真结束
+        
+    .如果结束
+    返回 (变量_6B0A0325)
+
+.子程序 置子夹标题, 逻辑型, 公开
+    .参数 子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .参数 欲置入的子夹标题, 文本型
+    .局部变量 变量_840A0325, 整数型
+    .局部变量 变量_850A0325, 整数型
+    .局部变量 变量_860A0325, 整数型
+    .局部变量 变量_870A0325, 整数型
+
+    .如果真 (子夹索引 ＜ 0)
+        变量_840A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_840A0325 ＝ 0)
+            返回 (假)
+        .如果真结束
+        子夹索引 ＝ 变量_840A0325 － 1
+    .如果真结束
+    变量_850A0325 ＝ 28
+    .如果 (isRemote)
+        .如果真 (hProcess ≠ #NULL)
+            变量_860A0325 ＝ VirtualAllocEx (hProcess, #NULL, 变量_850A0325 ＋ #MAX_PATH, 位或 (#<?未知本地类型?>, #MEM_COMMIT), #PAGE_READWRITE)
+            .如果真 (变量_860A0325 ≠ #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_860A0325, #TCIF_TEXT, 4, #NULL)
+                WriteProcessMemory_文本型 (hProcess, 变量_860A0325 ＋ 变量_850A0325, 欲置入的子夹标题 ＋ 字符 (#NULL), 取文本长度 (欲置入的子夹标题), #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_860A0325 ＋ 12, 变量_860A0325 ＋ 变量_850A0325, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_860A0325 ＋ 16, 取文本长度 (欲置入的子夹标题), 4, #NULL)
+                变量_870A0325 ＝ SendMessageA (hTabCtrl, #TCM_SETITEMA, 子夹索引, 变量_860A0325)
+                VirtualFreeEx (hProcess, 变量_860A0325, 0, #MEM_RELEASE)
+            .如果真结束
+            
+        .如果真结束
+        
+    .否则
+        变量_860A0325 ＝ HeapAlloc (GetProcessHeap (), #HEAP_ZERO_MEMORY, 变量_850A0325)
+        .如果真 (变量_860A0325 ≠ #NULL)
+            __set (变量_860A0325, 0, #TCIF_TEXT)
+            __set (变量_860A0325, 12, 取指针文本_ (欲置入的子夹标题))
+            __set (变量_860A0325, 16, 取文本长度 (欲置入的子夹标题))
+            变量_870A0325 ＝ SendMessageA (hTabCtrl, #TCM_SETITEMA, 子夹索引, 变量_860A0325)
+            DLL_HeapFree (GetProcessHeap (), 0, 变量_860A0325)
+        .如果真结束
+        
+    .如果结束
+    返回 (变量_870A0325 ≠ 0)
+
+.子程序 置子夹数值, 逻辑型, 公开
+    .参数 子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .参数 欲置入的子夹数值, 整数型
+    .局部变量 变量_A10A0325, 整数型
+    .局部变量 变量_A20A0325, 整数型
+    .局部变量 变量_A30A0325, 整数型
+    .局部变量 变量_A40A0325, 整数型
+    .局部变量 变量_A50A0325, 整数型
+
+    .如果真 (子夹索引 ＜ 0)
+        变量_A10A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_A10A0325 ＝ 0)
+            返回 (假)
+        .如果真结束
+        子夹索引 ＝ 变量_A10A0325 － 1
+    .如果真结束
+    变量_A20A0325 ＝ 28
+    .如果 (isRemote)
+        .如果真 (hProcess ≠ #NULL)
+            变量_A30A0325 ＝ VirtualAllocEx (hProcess, #NULL, 变量_A20A0325, 位或 (#<?未知本地类型?>, #MEM_COMMIT), #PAGE_READWRITE)
+            .如果真 (变量_A30A0325 ≠ #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_A30A0325, #TCIF_PARAM, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_A30A0325 ＋ 24, 欲置入的子夹数值, 4, #NULL)
+                变量_A50A0325 ＝ SendMessageA (hTabCtrl, #TCM_SETITEMA, 子夹索引, 变量_A30A0325)
+                VirtualFreeEx (hProcess, 变量_A30A0325, 0, #MEM_RELEASE)
+            .如果真结束
+            
+        .如果真结束
+        
+    .否则
+        变量_A30A0325 ＝ HeapAlloc (GetProcessHeap (), #HEAP_ZERO_MEMORY, 变量_A20A0325)
+        .如果真 (变量_A30A0325 ≠ #NULL)
+            __set (变量_A30A0325, 0, #TCIF_PARAM)
+            __set (变量_A30A0325, 24, 欲置入的子夹数值)
+            变量_A50A0325 ＝ SendMessageA (hTabCtrl, #TCM_SETITEMA, 子夹索引, 变量_A30A0325)
+            DLL_HeapFree (GetProcessHeap (), 0, 变量_A30A0325)
+        .如果真结束
+        
+    .如果结束
+    返回 (变量_A50A0325 ≠ 0)
+
+.子程序 置现行子夹, , 公开
+    .参数 欲选择的子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .局部变量 变量_180A0325, 整数型
+
+    .如果真 (欲选择的子夹索引 ＜ 0)
+        变量_180A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_180A0325 ＝ 0)
+            返回 ()
+        .如果真结束
+        欲选择的子夹索引 ＝ 变量_180A0325 － 1
+    .如果真结束
+    SendMessageA (hTabCtrl, #TCM_SETCURFOCUS, 欲选择的子夹索引, 0)
+
+.子程序 取现行子夹, 整数型, 公开, 0 代表子夹一，1 代表子夹二，如此类推(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    返回 (SendMessageA (hTabCtrl, #TCM_GETCURFOCUS, 0, 0))
+
+.子程序 删除全部子夹, , 公开
+    SendMessageA (hTabCtrl, #TCM_DELETEALLITEMS, 0, 0)
+
+.子程序 取图片组句柄, 整数型, 公开
+    返回 (SendMessageA (hTabCtrl, #TCM_GETIMAGELIST, 0, 0))
+
+.子程序 取行数, 整数型, 公开
+    返回 (SendMessageA (hTabCtrl, #TCM_GETROWCOUNT, 0, 0))
+
+.子程序 置入图片组, , 公开
+    .参数 图片组句柄, 整数型
+
+    SendMessageA (hTabCtrl, #TCM_SETIMAGELIST, 0, 图片组句柄)
+
+.子程序 置子夹图片, 逻辑型, 公开
+    .参数 子夹索引, 整数型, , 0 代表子夹一，1 代表子夹二，如此类推。-1为最末端子夹。(注意：易语言的子夹索引是从1计起，这个类是按照微软的标准从0计起)。
+    .参数 图片索引, 整数型
+    .局部变量 变量_C10A0325, 整数型
+    .局部变量 变量_C20A0325, 整数型
+    .局部变量 变量_C30A0325, 整数型
+    .局部变量 变量_C40A0325, 整数型
+    .局部变量 变量_C50A0325, 整数型
+
+    .如果真 (子夹索引 ＜ 0)
+        变量_C10A0325 ＝ 取子夹数目 ()
+        .如果真 (变量_C10A0325 ＝ 0)
+            返回 (假)
+        .如果真结束
+        子夹索引 ＝ 变量_C10A0325 － 1
+    .如果真结束
+    变量_C20A0325 ＝ 28
+    .如果 (isRemote)
+        .如果真 (hProcess ≠ #NULL)
+            变量_C30A0325 ＝ VirtualAllocEx (hProcess, #NULL, 变量_C20A0325, 位或 (#<?未知本地类型?>, #MEM_COMMIT), #PAGE_READWRITE)
+            .如果真 (变量_C30A0325 ≠ #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_C30A0325, #TCIF_IMAGE, 4, #NULL)
+                DLL_WriteProcessMemory (hProcess, 变量_C30A0325 ＋ 20, 图片索引, 4, #NULL)
+                变量_C50A0325 ＝ SendMessageA (hTabCtrl, #TCM_SETITEMA, 子夹索引, 变量_C30A0325)
+                VirtualFreeEx (hProcess, 变量_C30A0325, 0, #MEM_RELEASE)
+            .如果真结束
+            
+        .如果真结束
+        
+    .否则
+        变量_C30A0325 ＝ HeapAlloc (GetProcessHeap (), #HEAP_ZERO_MEMORY, 变量_C20A0325)
+        .如果真 (变量_C30A0325 ≠ #NULL)
+            __set (变量_C30A0325, 0, #TCIF_IMAGE)
+            __set (变量_C30A0325, 20, 图片索引)
+            变量_C50A0325 ＝ SendMessageA (hTabCtrl, #TCM_SETITEMA, 子夹索引, 变量_C30A0325)
+            DLL_HeapFree (GetProcessHeap (), 0, 变量_C30A0325)
+        .如果真结束
+        
+    .如果结束
+    返回 (变量_C50A0325 ≠ 0)
+
+.子程序 置子夹栏尺寸, , 公开
+    .参数 子夹栏宽度, 整数型
+    .参数 子夹栏高度, 整数型
+
+    SendMessageA (hTabCtrl, #TCM_SETITEMSIZE, 0, MAKEWORD (子夹栏宽度, 子夹栏高度))
+
+.子程序 置子夹栏宽度, , 公开
+    .参数 子夹栏宽度, 整数型
+
+    SendMessageA (hTabCtrl, #TCM_SETMINTABWIDTH, 0, 子夹栏宽度)
+

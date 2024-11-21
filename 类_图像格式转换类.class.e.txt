@@ -1,0 +1,293 @@
+﻿.版本 2
+
+.程序集 类_图像格式转换类, , 公开, 作者：凌晨孤星；修改：邓学彬(泪闯天涯)
+.程序集变量 m_hMem, 整数型
+.程序集变量 m_Stream, 对象
+.程序集变量 m_pBitmap, 整数型
+.程序集变量 m_nWidth, 整数型, , , 图片宽度
+.程序集变量 m_nHeight, 整数型, , , 图片高度
+.程序集变量 m_pBrush, 整数型, , , 背景画刷
+
+.子程序 _初始化
+    .局部变量 变量_AFC30225, 自定义_29AB0141
+
+    变量_AFC30225.成员_2AAB0135 ＝ 1
+    GdiplusStartup (全局变量_B3C30205, 变量_AFC30225, 0)
+    
+    
+
+.子程序 _销毁
+    销毁 ()
+    .如果真 (m_pBrush ≠ 0)
+        GdipDeleteBrush (m_pBrush)
+        m_pBrush ＝ 0
+    .如果真结束
+    
+
+.子程序 销毁, , 公开, 销毁载入的图像,释放内存
+    .如果真 (m_pBitmap ≠ 0)
+        GdipDisposeImage (m_pBitmap)
+        m_pBitmap ＝ 0
+    .如果真结束
+    .如果真 (m_Stream.是否为空 () ＝ 假)
+        m_Stream.清除 ()
+    .如果真结束
+    .如果真 (m_hMem ≠ 0)
+        GlobalFree (m_hMem)
+        m_hMem ＝ 0
+    .如果真结束
+    m_nWidth ＝ 0
+    m_nHeight ＝ 0
+
+.子程序 载入图像, 逻辑型, 公开
+    .参数 图像数据, 字节集
+    .局部变量 变量_BCBB0225, 整数型
+    .局部变量 变量_BDBB0225, 整数型
+    .局部变量 变量_BEBB0225, 整数型
+    .局部变量 变量_BFBB0225, 整数型
+
+    销毁 ()
+    变量_BCBB0225 ＝ 取字节集长度 (图像数据)
+    .如果真 (变量_BCBB0225 ＜ 5)
+        返回 (假)
+    .如果真结束
+    m_hMem ＝ GlobalAlloc (#GMEM_MOVEABLE, 变量_BCBB0225)
+    .如果真 (m_hMem ＝ 0)
+        返回 (假)
+    .如果真结束
+    
+    DLL_CreateStreamOnHGlobal3 (m_hMem, 假, m_Stream)
+    .如果真 (m_Stream.是否为空 ())
+        返回 (假)
+    .如果真结束
+    变量_BDBB0225 ＝ GlobalLock (m_hMem)
+    .如果真 (变量_BDBB0225 ＝ 0)
+        返回 (假)
+    .如果真结束
+    RtlMoveMemory_字节集 (变量_BDBB0225, 图像数据, 变量_BCBB0225)
+    GlobalUnlock (m_hMem)
+    变量_BEBB0225 ＝ DLL_lstrcpyn9 (m_Stream, m_Stream, 0)
+    .如果真 (变量_BEBB0225 ＝ 0)
+        返回 (假)
+    .如果真结束
+    RtlMoveMemory_整数传址1 (变量_BFBB0225, 变量_BEBB0225, 4)
+    .如果真 (变量_BFBB0225 ＝ 0)
+        返回 (假)
+    .如果真结束
+    DLL_GdipCreateBitmapFromStream (变量_BFBB0225, m_pBitmap)
+    .如果真 (m_pBitmap ＝ 0)
+        返回 (假)
+    .如果真结束
+    
+    返回 (m_pBitmap ≠ 0)
+
+.子程序 载入文件, 逻辑型, 公开
+    .参数 文件名, 文本型, , 完整文件路径。
+    .局部变量 变量_C1BB0225, 字节集
+
+    销毁 ()
+    .如果真 (文件名 ＝ “”)
+        返回 (假)
+    .如果真结束
+    变量_C1BB0225 ＝ 编码_Ansi到Unicode (文件名, )
+    DLL_GdipLoadImageFromFile (变量_C1BB0225, m_pBitmap)
+    返回 (m_pBitmap ≠ 0)
+
+.子程序 转换到字节集, 字节集, 公开, 转换图片为新格式,操作成功返回新图片的字节集,失败返回空字节集.参数1为转换格式(1、bmp；2、jpg；3、gif；4、tiff；5、png),参数2为JPG图片质量(0-100)
+    .参数 转换格式, 整数型, , 转换后的图片格式。1、bmp；2、jpg；3、gif；4、tiff；5、png
+    .参数 JPG图片质量, 整数型, 可空, 只对JPG格式有效,0最差效果,100最好效果,留空默认为100
+    .局部变量 变量_C4BB0225, 字节集
+    .局部变量 变量_C5BB0225, 对象
+    .局部变量 变量_C6BB0225, 整数型
+    .局部变量 变量_C7BB0225, 整数型
+    .局部变量 变量_C8BB0225, 整数型
+    .局部变量 变量_C9BB0225, 逻辑型
+    .局部变量 变量_CABB0225, 自定义_11BC0241
+    .局部变量 变量_CBBB0225, 整数型
+    .局部变量 变量_CCBB0225, 字节集
+    .局部变量 变量_CDBB0225, 整数型
+    .局部变量 变量_CEBB0225, 整数型
+
+    .如果真 (m_pBitmap ＝ 0)
+        返回 (变量_CCBB0225)
+    .如果真结束
+    填充背景 ()
+    
+    .如果真 (是否为空 (JPG图片质量))
+        JPG图片质量 ＝ 100
+    .如果真结束
+    .如果真 (JPG图片质量 ＜ 0)
+        JPG图片质量 ＝ 0
+    .如果真结束
+    .如果真 (JPG图片质量 ＞ 100)
+        JPG图片质量 ＝ 100
+    .如果真结束
+    
+    GetCLSID (转换格式, 变量_C4BB0225)
+    变量_CABB0225.成员_12BC0235 ＝ 1
+    变量_CABB0225.成员_13BC0235 [1].成员_18BC0235 ＝ 4
+    变量_CABB0225.成员_13BC0235 [1].成员_17BC0235 ＝ 1
+    .如果真 (转换格式 ＝ 2)
+        变量_CBBB0225 ＝ JPG图片质量
+        变量_CABB0225.成员_13BC0235 [1].成员_19BC0235 ＝ DLL_lstrcpynA3 (变量_CBBB0225, 变量_CBBB0225, 0)
+        DLL_CLSIDFromString2 (编码_Ansi到Unicode (“{1d5be4b5-fa4a-452d-9cdd-5db35105e7eb}”, ), 变量_CABB0225.成员_13BC0235 [1].成员_16BC0235)
+    .如果真结束
+    
+    变量_C6BB0225 ＝ GlobalAlloc (#GMEM_MOVEABLE, 0)
+    DLL_CreateStreamOnHGlobal3 (变量_C6BB0225, 假, 变量_C5BB0225)
+    变量_CEBB0225 ＝ DLL_lstrcpyn9 (变量_C5BB0225, 变量_C5BB0225, 0)
+    .如果真 (变量_CEBB0225 ≠ 0)
+        RtlMoveMemory_整数传址1 (变量_CDBB0225, 变量_CEBB0225, 4)
+        .如果真 (变量_CDBB0225 ≠ 0)
+            DLL_GdipSaveImageToStream (m_pBitmap, 变量_CDBB0225, 变量_C4BB0225, 变量_CABB0225)
+            变量_C7BB0225 ＝ GlobalLock (变量_C6BB0225)
+            变量_C8BB0225 ＝ GlobalSize (变量_C6BB0225)
+            .如果真 (变量_C7BB0225 ≠ 0)
+                变量_CCBB0225 ＝ 取空白字节集 (变量_C8BB0225)
+                RtlMoveMemory_int2Bytes (变量_CCBB0225, 变量_C7BB0225, 变量_C8BB0225)
+                变量_C9BB0225 ＝ 真
+            .如果真结束
+            GlobalUnlock (变量_C6BB0225)
+        .如果真结束
+        
+    .如果真结束
+    GlobalFree (变量_C6BB0225)
+    返回 (变量_CCBB0225)
+
+.子程序 转换到文件, 逻辑型, 公开, 转换图片为新格式,操作成功返回真,失败返回假.参数1为转换格式(1、bmp；2、jpg；3、gif；4、tiff；5、png),参数2为JPG图片质量(0-100)
+    .参数 文件名, 文本型, , 完整文件路径,存放转换后的图片。
+    .参数 转换格式, 整数型, , 转换后的图片格式。1、bmp；2、jpg；3、gif；4、tiff；5、png
+    .参数 JPG图片质量, 整数型, 可空, 只对JPG格式有效,0最差效果,100最好效果,留空默认为100
+    .局部变量 变量_D2BB0225, 字节集
+    .局部变量 变量_D3BB0225, 字节集
+    .局部变量 变量_D4BB0225, 自定义_11BC0241
+    .局部变量 变量_D5BB0225, 整数型
+    .局部变量 变量_D6BB0225, 整数型
+
+    .如果真 (m_pBitmap ＝ 0)
+        返回 (假)
+    .如果真结束
+    .如果真 (文件名 ＝ “”)
+        返回 (假)
+    .如果真结束
+    填充背景 ()
+    
+    .如果真 (是否为空 (JPG图片质量))
+        JPG图片质量 ＝ 100
+    .如果真结束
+    .如果真 (JPG图片质量 ＜ 0)
+        JPG图片质量 ＝ 0
+    .如果真结束
+    .如果真 (JPG图片质量 ＞ 100)
+        JPG图片质量 ＝ 100
+    .如果真结束
+    
+    GetCLSID (转换格式, 变量_D2BB0225)
+    变量_D4BB0225.成员_12BC0235 ＝ 1
+    变量_D4BB0225.成员_13BC0235 [1].成员_18BC0235 ＝ 4
+    变量_D4BB0225.成员_13BC0235 [1].成员_17BC0235 ＝ 1
+    .如果真 (转换格式 ＝ 2)
+        变量_D5BB0225 ＝ JPG图片质量
+        变量_D4BB0225.成员_13BC0235 [1].成员_19BC0235 ＝ DLL_lstrcpynA3 (变量_D5BB0225, 变量_D5BB0225, 0)
+        DLL_CLSIDFromString2 (编码_Ansi到Unicode (“{1d5be4b5-fa4a-452d-9cdd-5db35105e7eb}”, ), 变量_D4BB0225.成员_13BC0235 [1].成员_16BC0235)
+    .如果真结束
+    
+    变量_D3BB0225 ＝ 编码_Ansi到Unicode (文件名, )
+    变量_D6BB0225 ＝ DLL_GdipSaveImageToFile (m_pBitmap, 变量_D3BB0225, 变量_D2BB0225, 变量_D4BB0225)
+    返回 (变量_D6BB0225 ＝ 0)
+
+.子程序 填充背景, , 公开
+    .局部变量 变量_D7BB0225, 整数型
+    .局部变量 变量_D8BB0225, 整数型
+
+    .如果真 (m_pBitmap ＝ 0)
+        返回 ()
+    .如果真结束
+    .如果真 (m_pBrush ＝ 0)
+        返回 ()
+    .如果真结束
+    
+    .如果真 (m_nWidth ＝ 0 或 m_nHeight ＝ 0)
+        DLL_GdipGetImageWidth (m_pBitmap, m_nWidth)
+        DLL_GdipGetImageHeight (m_pBitmap, m_nHeight)
+    .如果真结束
+    DLL_GdipCreateBitmapFromScan0 (m_nWidth, m_nHeight, 0, #像素格式_32bppARGB, 0, 变量_D7BB0225)
+    .如果真 (变量_D7BB0225 ＝ 0)
+        返回 ()
+    .如果真结束
+    DLL_GdipGetImageGraphicsContext (变量_D7BB0225, 变量_D8BB0225)
+    DLL_GdipFillRectangle (变量_D8BB0225, m_pBrush, 0, 0, m_nWidth, m_nHeight)
+    DLL_GdipDrawImageRectRect (变量_D8BB0225, m_pBitmap, 0, 0, m_nWidth, m_nHeight, 0, 0, m_nWidth, m_nHeight, #单位_像素, 0, 0, 0)
+    GdipDeleteGraphics (变量_D8BB0225)
+    
+    销毁 ()
+    m_pBitmap ＝ 变量_D7BB0225
+
+.子程序 取图片宽度, 整数型, 公开
+    .如果真 (m_pBitmap ≠ 0 且 m_nWidth ＝ 0)
+        取图片尺寸 (0, 0)
+    .如果真结束
+    返回 (m_nWidth)
+
+.子程序 取图片高度, 整数型, 公开
+    .如果真 (m_pBitmap ≠ 0 且 m_nHeight ＝ 0)
+        取图片尺寸 (0, 0)
+    .如果真结束
+    返回 (m_nHeight)
+
+.子程序 取图片尺寸, , 公开
+    .参数 图片宽度, 整数型, 参考
+    .参数 图片高度, 整数型, 参考
+
+    .如果真 (m_pBitmap ≠ 0)
+        .如果真 (m_nWidth ＝ 0)
+            DLL_GdipGetImageWidth (m_pBitmap, m_nWidth)
+        .如果真结束
+        .如果真 (m_nHeight ＝ 0)
+            DLL_GdipGetImageHeight (m_pBitmap, m_nHeight)
+        .如果真结束
+        .如果真 (m_nWidth ＝ 0 或 m_nHeight ＝ 0)
+            销毁 ()
+        .如果真结束
+        
+    .如果真结束
+    图片宽度 ＝ m_nWidth
+    图片高度 ＝ m_nHeight
+
+.子程序 取图片句柄, 整数型, 公开
+    返回 (m_pBitmap)
+
+.子程序 置背景颜色, , 公开, 设置转换后图片的背景颜色
+    .参数 背景颜色, 整数型, , RGB颜色值，-1为透明(不填充背景)
+
+    .如果真 (m_pBrush ≠ 0)
+        GdipDeleteBrush (m_pBrush)
+        m_pBrush ＝ 0
+    .如果真结束
+    .如果真 (背景颜色 ≥ 0)
+        DLL_GdipCreateSolidFill (RGB2ARGB (背景颜色), m_pBrush)
+    .如果真结束
+    
+
+.子程序 GetCLSID
+    .参数 变量_DCBB0225, 整数型
+    .参数 变量_DDBB0225, 字节集, 参考
+    .局部变量 变量_DEBB0225, 文本型
+
+    .判断开始 (变量_DCBB0225 ＝ 1)
+        变量_DEBB0225 ＝ “{557CF400-1A04-11D3-9A73-0000F81EF32E}”
+    .判断 (变量_DCBB0225 ＝ 2)
+        变量_DEBB0225 ＝ “{557CF401-1A04-11D3-9A73-0000F81EF32E}”
+    .判断 (变量_DCBB0225 ＝ 3)
+        变量_DEBB0225 ＝ “{557CF402-1A04-11D3-9A73-0000F81EF32E}”
+    .判断 (变量_DCBB0225 ＝ 4)
+        变量_DEBB0225 ＝ “{557CF405-1A04-11D3-9A73-0000F81EF32E}”
+    .判断 (变量_DCBB0225 ＝ 5)
+        变量_DEBB0225 ＝ “{557CF406-1A04-11D3-9A73-0000F81EF32E}”
+    .默认
+        变量_DEBB0225 ＝ “{557CF400-1A04-11D3-9A73-0000F81EF32E}”
+    .判断结束
+    变量_DDBB0225 ＝ 取空白字节集 (16)
+    DLL_CLSIDFromString (编码_Ansi到Unicode (变量_DEBB0225, ), 变量_DDBB0225)
+    
+

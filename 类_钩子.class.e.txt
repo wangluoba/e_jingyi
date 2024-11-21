@@ -1,0 +1,251 @@
+﻿.版本 2
+
+.程序集 类_钩子, , 公开
+.程序集变量 Keyboard, 自定义_DEF10241
+.程序集变量 Mouse, 自定义_DEF10241
+
+.子程序 _初始化
+    
+
+.子程序 _销毁
+    
+
+.子程序 LowLevelKeyboardProc, 整数型
+    .参数 变量_2AF20225, 整数型
+    .参数 变量_2BF20225, 整数型
+    .参数 变量_2CF20225, 整数型
+    .局部变量 变量_2DF20225, 自定义_92E40241
+
+    .如果真 (变量_2AF20225 ＝ #HC_ACTION 且 变量_2CF20225 ≠ #NULL)
+        .如果真 (变量_2BF20225 ＝ #<?未知本地类型?> 或 变量_2BF20225 ＝ #<?未知本地类型?> 或 变量_2BF20225 ＝ #<?未知本地类型?>)
+            DLL_RtlMoveMemory41 (变量_2DF20225, 变量_2CF20225, 20)
+            .如果真 (程序_执行整数子程序 (Keyboard.成员_F2F10235, 变量_2BF20225, 变量_2DF20225.成员_93E40235, 0) ＝ 1)
+                返回 (1)
+            .如果真结束
+            
+        .如果真结束
+        
+    .如果真结束
+    返回 (CallNextHookEx (Keyboard.成员_F3F10235, 变量_2AF20225, 变量_2BF20225, 变量_2CF20225))
+
+.子程序 KeyboardProc, 整数型
+    .参数 变量_2EF20225, 整数型
+    .参数 变量_2FF20225, 整数型
+    .参数 变量_30F20225, 整数型
+    .局部变量 变量_31F20225, 逻辑型
+
+    .如果真 (变量_2EF20225 ＝ #HC_ACTION 且 变量_30F20225 ≠ #NULL)
+        取键盘消息lParam (变量_30F20225, , , , , , 变量_31F20225)
+        .如果真 (程序_执行整数子程序 (Keyboard.成员_F2F10235, 选择 (变量_31F20225, #<?未知本地类型?>, #<?未知本地类型?>), 变量_2FF20225, 0) ＝ 1)
+            返回 (1)
+        .如果真结束
+        
+    .如果真结束
+    返回 (CallNextHookEx (Keyboard.成员_F3F10235, 变量_2EF20225, 变量_2FF20225, 变量_30F20225))
+
+.子程序 LowLevelMouseProc, 整数型
+    .参数 变量_32F20225, 整数型
+    .参数 变量_33F20225, 整数型
+    .参数 变量_34F20225, 整数型
+    .局部变量 变量_35F20225, 自定义_DFF10241
+    .局部变量 变量_36F20225, 整数型
+    .局部变量 变量_37F20225, 整数型
+    .局部变量 变量_38F20225, 整数型
+
+    .如果真 (变量_32F20225 ＝ #HC_ACTION 且 变量_34F20225 ≠ #NULL)
+        DLL_RtlMoveMemory42 (变量_35F20225, 变量_34F20225, 24)
+        .判断开始 (变量_33F20225 ＝ #WM_LBUTTONDOWN)
+            变量_36F20225 ＝ #KEYCODE_LBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_DOWN
+        .判断 (变量_33F20225 ＝ #WM_LBUTTONUP)
+            变量_36F20225 ＝ #KEYCODE_LBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_UP
+        .判断 (变量_33F20225 ＝ #WM_LBUTTONDBLCLK)
+            变量_36F20225 ＝ #KEYCODE_LBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_DBLCLK
+        .判断 (变量_33F20225 ＝ #WM_RBUTTONDOWN)
+            变量_36F20225 ＝ #KEYCODE_RBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_DOWN
+        .判断 (变量_33F20225 ＝ #WM_RBUTTONUP)
+            变量_36F20225 ＝ #KEYCODE_RBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_UP
+        .判断 (变量_33F20225 ＝ #WM_RBUTTONDBLCLK)
+            变量_36F20225 ＝ #KEYCODE_RBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_DBLCLK
+        .判断 (变量_33F20225 ＝ #WM_MBUTTONDOWN)
+            变量_36F20225 ＝ #KEYCODE_MBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_DOWN
+        .判断 (变量_33F20225 ＝ #WM_MBUTTONUP)
+            变量_36F20225 ＝ #KEYCODE_MBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_UP
+        .判断 (变量_33F20225 ＝ #WM_MBUTTONDBLCLK)
+            变量_36F20225 ＝ #KEYCODE_MBUTTON
+            变量_37F20225 ＝ #KEYSTATUS_DBLCLK
+        .判断 (变量_33F20225 ＝ #WM_MOUSEWHEEL)
+            变量_38F20225 ＝ HIWORD (变量_35F20225.成员_F6F10235)
+            .如果 (变量_38F20225 ＝ #<?未知本地类型?>)
+                变量_36F20225 ＝ #KEYCODE_WHEEL
+                变量_37F20225 ＝ #KEYSTATUS_WHEELUP
+            .否则
+                变量_36F20225 ＝ #KEYCODE_WHEEL
+                变量_37F20225 ＝ #KEYSTATUS_WHEELDOWN
+            .如果结束
+            
+        .判断 (变量_33F20225 ＝ #<?未知本地类型?>)
+            变量_38F20225 ＝ HIWORD (变量_35F20225.成员_F6F10235)
+            .判断开始 (变量_38F20225 ＝ #<?未知本地类型?>)
+                变量_36F20225 ＝ #KEYCODE_SIDEKEYUP
+                变量_37F20225 ＝ #KEYSTATUS_DOWN
+            .判断 (变量_38F20225 ＝ #<?未知本地类型?>)
+                变量_36F20225 ＝ #KEYCODE_SIDEKEYDOWN
+                变量_37F20225 ＝ #KEYSTATUS_DOWN
+            .默认
+                
+            .判断结束
+            
+        .判断 (变量_33F20225 ＝ #<?未知本地类型?>)
+            变量_38F20225 ＝ HIWORD (变量_35F20225.成员_F6F10235)
+            .判断开始 (变量_38F20225 ＝ #<?未知本地类型?>)
+                变量_36F20225 ＝ #KEYCODE_SIDEKEYUP
+                变量_37F20225 ＝ #KEYSTATUS_UP
+            .判断 (变量_38F20225 ＝ #<?未知本地类型?>)
+                变量_36F20225 ＝ #KEYCODE_SIDEKEYDOWN
+                变量_37F20225 ＝ #KEYSTATUS_UP
+            .默认
+                
+            .判断结束
+            
+        .默认
+            
+        .判断结束
+        
+        .如果真 (程序_执行整数子程序 (Mouse.成员_F2F10235, 变量_36F20225, 变量_37F20225, 0) ＝ 1)
+            返回 (1)
+        .如果真结束
+        
+    .如果真结束
+    返回 (CallNextHookEx (Mouse.成员_F3F10235, 变量_32F20225, 变量_33F20225, 变量_34F20225))
+
+.子程序 MouseProc, 整数型
+    .参数 变量_39F20225, 整数型
+    .参数 变量_3AF20225, 整数型
+    .参数 变量_3BF20225, 整数型
+    .局部变量 变量_3CF20225, MOUSEHOOKSTRUCT
+    .局部变量 变量_3DF20225, 整数型
+    .局部变量 变量_3EF20225, 整数型
+    .局部变量 变量_3FF20225, 整数型
+
+    .如果真 (变量_39F20225 ≥ #HC_ACTION 且 变量_3BF20225 ≠ #NULL)
+        DLL_RtlMoveMemory37 (变量_3CF20225, 变量_3BF20225, 20)
+        .判断开始 (变量_3AF20225 ＝ #WM_LBUTTONDOWN)
+            变量_3DF20225 ＝ #KEYCODE_LBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_DOWN
+        .判断 (变量_3AF20225 ＝ #WM_LBUTTONUP)
+            变量_3DF20225 ＝ #KEYCODE_LBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_UP
+        .判断 (变量_3AF20225 ＝ #WM_LBUTTONDBLCLK)
+            变量_3DF20225 ＝ #KEYCODE_LBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_DBLCLK
+        .判断 (变量_3AF20225 ＝ #WM_RBUTTONDOWN)
+            变量_3DF20225 ＝ #KEYCODE_RBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_DOWN
+        .判断 (变量_3AF20225 ＝ #WM_RBUTTONUP)
+            变量_3DF20225 ＝ #KEYCODE_RBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_UP
+        .判断 (变量_3AF20225 ＝ #WM_RBUTTONDBLCLK)
+            变量_3DF20225 ＝ #KEYCODE_RBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_DBLCLK
+        .判断 (变量_3AF20225 ＝ #WM_MBUTTONDOWN)
+            变量_3DF20225 ＝ #KEYCODE_MBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_DOWN
+        .判断 (变量_3AF20225 ＝ #WM_MBUTTONUP)
+            变量_3DF20225 ＝ #KEYCODE_MBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_UP
+        .判断 (变量_3AF20225 ＝ #WM_MBUTTONDBLCLK)
+            变量_3DF20225 ＝ #KEYCODE_MBUTTON
+            变量_3EF20225 ＝ #KEYSTATUS_DBLCLK
+        .默认
+            
+        .判断结束
+        
+        .如果真 (程序_执行整数子程序 (Mouse.成员_F2F10235, 变量_3DF20225, 变量_3EF20225, 0) ＝ 1)
+            返回 (1)
+        .如果真结束
+        
+    .如果真结束
+    返回 (CallNextHookEx (Mouse.成员_F3F10235, 变量_39F20225, 变量_3AF20225, 变量_3BF20225))
+
+.子程序 安装钩子_键盘, 整数型, 公开, 成功安装返回钩子句柄，失败返回0
+    .参数 窗口句柄, 整数型
+    .参数 钩子回调函数, 子程序指针, 可空, 参数一[按键类型],256=按下，257=放开,258=单击,参数二[键代码]
+    .参数 是否全局, 逻辑型, 可空, 可空，默认为全局。注意，为假 局部时 无单击消息
+    .局部变量 变量_47F20225, 子程序指针
+
+    .如果真 (是否为空 (是否全局))
+        是否全局 ＝ 真
+    .如果真结束
+    
+    .如果 (是否全局)
+        Keyboard.成员_F4F10235 ＝ 类_取内部方法地址 (3)
+        变量_47F20225 ＝ lstrcpynA_指针 (Keyboard.成员_F4F10235, Keyboard.成员_F4F10235, 0)
+        Keyboard.成员_F3F10235 ＝ SetWindowsHookExA (#WH_KEYBOARD_LL, 变量_47F20225, GetModuleHandleA1 (#NULL), 0)
+    .否则
+        Keyboard.成员_F4F10235 ＝ 类_取内部方法地址 (4)
+        变量_47F20225 ＝ lstrcpynA_指针 (Keyboard.成员_F4F10235, Keyboard.成员_F4F10235, 0)
+        Keyboard.成员_F3F10235 ＝ SetWindowsHookExA (#WH_KEYBOARD, 变量_47F20225, GetModuleHandleA1 (#NULL), GetWindowThreadProcessId (窗口句柄, 0))
+    .如果结束
+    Keyboard.成员_F2F10235 ＝ 钩子回调函数
+    返回 (Keyboard.成员_F3F10235)
+
+.子程序 卸载, 逻辑型, 公开, 可以卸载所有使用“钩子_安装xx”命令安装的钩子
+    .参数 钩子句柄, 整数型, 可空, 通过“钩子_安装xx”返回的钩子句柄
+    .局部变量 变量_2FA60225, 逻辑型
+
+    .如果真 (钩子句柄 ≠ 0)
+        返回 (UnhookWindowsHookEx (钩子句柄))
+    .如果真结束
+    
+    .如果真 (Keyboard.成员_F3F10235 ≠ 0)
+        变量_2FA60225 ＝ UnhookWindowsHookEx (Keyboard.成员_F3F10235)
+        Keyboard.成员_F3F10235 ＝ 0
+    .如果真结束
+    
+    .如果真 (Keyboard.成员_F4F10235 ≠ 0)
+        类_释放内部方法地址 (Keyboard.成员_F4F10235)
+        Keyboard.成员_F4F10235 ＝ 0
+    .如果真结束
+    
+    .如果真 (Mouse.成员_F3F10235 ≠ 0)
+        变量_2FA60225 ＝ UnhookWindowsHookEx (Mouse.成员_F3F10235)
+        Mouse.成员_F3F10235 ＝ 0
+    .如果真结束
+    
+    .如果真 (Mouse.成员_F4F10235 ≠ 0)
+        类_释放内部方法地址 (Mouse.成员_F4F10235)
+        Mouse.成员_F4F10235 ＝ 0
+    .如果真结束
+    
+    返回 (变量_2FA60225)
+
+.子程序 安装钩子_鼠标, 整数型, 公开, 成功安装返回钩子句柄，失败返回0
+    .参数 窗口句柄, 整数型
+    .参数 钩子回调函数, 子程序指针, 可空, 参数一[键代码],1=左键 2=右键 3=中键 4=滚轮 5=侧键上 6=侧键下,参数二[按键类型] 1=按下 2=弹起 3=双击 4=滚轮往上 5=滚轮往下
+    .参数 是否全局, 逻辑型, 可空, 可空，默认为全局。为 假 局部时无滚轮上下消息及侧键消息
+    .局部变量 变量_50F20225, 子程序指针
+
+    .如果真 (是否为空 (是否全局))
+        是否全局 ＝ 真
+    .如果真结束
+    
+    .如果 (是否全局)
+        Mouse.成员_F4F10235 ＝ 类_取内部方法地址 (5)
+        变量_50F20225 ＝ lstrcpynA_指针 (Mouse.成员_F4F10235, Mouse.成员_F4F10235, 0)
+        Mouse.成员_F3F10235 ＝ SetWindowsHookExA (#WH_MOUSE_LL, 变量_50F20225, GetModuleHandleA1 (#NULL), 0)
+    .否则
+        Mouse.成员_F4F10235 ＝ 类_取内部方法地址 (6)
+        变量_50F20225 ＝ lstrcpynA_指针 (Mouse.成员_F4F10235, Mouse.成员_F4F10235, 0)
+        Mouse.成员_F3F10235 ＝ SetWindowsHookExA (#WH_MOUSE, 变量_50F20225, GetModuleHandleA1 (#NULL), GetWindowThreadProcessId (窗口句柄, 0))
+    .如果结束
+    Mouse.成员_F2F10235 ＝ 钩子回调函数
+    返回 (Mouse.成员_F3F10235)
+

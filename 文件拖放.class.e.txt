@@ -1,0 +1,78 @@
+﻿.版本 2
+
+.程序集 文件拖放, , 公开, 文件拖放
+.程序集变量 hWndControl, 整数型
+.程序集变量 WndProc, 整数型
+.程序集变量 oldWndProc, 整数型
+.程序集变量 lpPrevWndFunc, 整数型
+.程序集变量 iswchar, 逻辑型
+
+.子程序 _初始化
+    
+
+.子程序 _销毁
+    拖放对象_撤销 ()
+
+.子程序 拖放对象_注册, , 公开, 将类命令声明到程序集，局部变量会失败
+    .参数 窗口句柄, 整数型
+    .参数 挂接拖放事件, 子程序指针, , 创建一个取回文件名子程序.需要带参数;   参数1:文本型
+    .参数 使用Unicode字符集, 逻辑型, 可空, 为真时挂接拖放事件接收宽字符
+
+    hWndControl ＝ 窗口句柄
+    lpPrevWndFunc ＝ 到整数 (挂接拖放事件)
+    iswchar ＝ 使用Unicode字符集
+    .如果真 (_WIN32_WINNT ≥ #_WIN32_WINNT_VISTA)
+        ChangeWindowMessageFilter (#<?未知本地类型?>, #MSGFLT_ADD)
+        ChangeWindowMessageFilter (#<?未知本地类型?>, #MSGFLT_ADD)
+        ChangeWindowMessageFilter (#<?未知本地类型?>, #MSGFLT_ADD)
+    .如果真结束
+    DragAcceptFiles (hWndControl, 1)
+    WndProc ＝ 类_取内部方法地址 (5)
+    oldWndProc ＝ SetWindowLongW (hWndControl, #GWL_WNDPROC, WndProc)
+
+.子程序 拖放对象_撤销, , 公开
+    DragAcceptFiles (hWndControl, 0)
+    .如果真 (oldWndProc ≠ #NULL)
+        SetWindowLongW (hWndControl, #GWL_WNDPROC, oldWndProc)
+        oldWndProc ＝ #NULL
+    .如果真结束
+    .如果真 (WndProc ≠ #NULL)
+        类_释放内部方法地址 (WndProc)
+        WndProc ＝ #NULL
+    .如果真结束
+    lpPrevWndFunc ＝ #NULL
+    iswchar ＝ 假
+
+.子程序 拖放对象回调, 整数型
+    .参数 变量_7CBA0225, 整数型
+    .参数 变量_7DBA0225, 整数型
+    .参数 变量_7EBA0225, 整数型
+    .参数 变量_7FBA0225, 整数型
+    .局部变量 变量_80BA0225, 整数型
+    .局部变量 变量_54040325, 文本型
+    .局部变量 变量_82BA0225, 整数型
+    .局部变量 变量_83BA0225, 整数型
+
+    .如果真 (变量_7DBA0225 ＝ #<?未知本地类型?>)
+        变量_82BA0225 ＝ DLL_DragQueryFileW (变量_7EBA0225, -1, #NULL, 0)
+        .如果真 (变量_82BA0225 ＞ 0)
+            变量_80BA0225 ＝ LocalAlloc (#LMEM_ZEROINIT, 1025 × 2)
+            .如果真 (变量_80BA0225 ≠ #NULL)
+                .变量循环首 (0, 变量_82BA0225 － 1, 1, 变量_83BA0225)
+                    memset (变量_80BA0225, 0, 1025 × 2)
+                    .如果 (iswchar)
+                        DLL_DragQueryFileW (变量_7EBA0225, 变量_83BA0225, 变量_80BA0225, 1024)
+                    .否则
+                        DragQueryFileA (变量_7EBA0225, 变量_83BA0225, 变量_80BA0225, 1024)
+                    .如果结束
+                    调用子程序_ (lpPrevWndFunc, 变量_80BA0225, , , , , , , , , , , , , , )
+                .变量循环尾 ()
+                LocalFree (变量_80BA0225)
+            .如果真结束
+            
+        .如果真结束
+        DragFinish (变量_7EBA0225)
+        返回 (0)
+    .如果真结束
+    返回 (DLL_CallWindowProcW (oldWndProc, 变量_7CBA0225, 变量_7DBA0225, 变量_7EBA0225, 变量_7FBA0225))
+
